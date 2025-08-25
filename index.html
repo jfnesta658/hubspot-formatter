@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Docs → HubSpot Formatter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .workflow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .step {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border: 2px dashed #e0e7ff;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 auto 15px;
+        }
+
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            min-height: 400px;
+        }
+
+        .editor-panel {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: #f9fafb;
+            padding: 15px 20px;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .paste-area {
+            min-height: 350px;
+            padding: 20px;
+            border: none;
+            resize: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            outline: none;
+            background: white;
+        }
+
+        .output-area {
+            min-height: 350px;
+            padding: 20px;
+            background: #f9fafb;
+            border: none;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #374151;
+        }
+
+        .copy-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn.copied {
+            background: #6366f1;
+        }
+
+        .rules-panel {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 12px;
+            border: 1px solid #e0e7ff;
+        }
+
+        .rules-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .rule-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .rule-name {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+
+        .rule-description {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .placeholder-text {
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 Google Docs → HubSpot Formatter</h1>
+            <p>Clean up messy Google Docs formatting for perfect HubSpot pastes</p>
+        </div>
+
+        <div class="main-content">
+            <div class="workflow-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>Copy from Google Docs</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>Paste in left panel</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>Copy cleaned output</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div>Paste into HubSpot</div>
+                </div>
+            </div>
+
+            <div class="editor-container">
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        📋 Paste Google Docs Content
+                    </div>
+                    <div contenteditable="true" 
+                         class="paste-area" 
+                         id="pasteArea" 
+                         data-placeholder="Paste your Google Docs content here...">
+                    </div>
+                </div>
+
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        ✨ Cleaned for HubSpot
+                        <button class="copy-btn" id="copyBtn">Copy Clean HTML</button>
+                    </div>
+                    <div class="output-area" id="outputArea">
+                        <div class="placeholder-text">Cleaned content will appear here...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rules-panel">
+                <div class="rules-title">🔧 Active Cleaning Rules</div>
+                <div class="rules-grid">
+                    <div class="rule-item">
+                        <div class="rule-name">Remove Span Tags</div>
+                        <div class="rule-description">Strips unnecessary span elements while preserving content</div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-name">Clean Google Styles</div>
+                        <div class="rule-description">Removes Google Docs specific CSS classes and inline styles</div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-name">Normalize Lists</div>
+                        <div class="rule-description">Converts to clean ul/ol structure</div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-name">Fix Emoji Bullets</div>
+                        <div class="rule-description">Converts emoji bullets to proper list formatting</div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-name">Clean Link Styles</div>
+                        <div class="rule-description">Removes inline styles from anchor tags only (HubSpot handles links)</div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-name">Emoji Bullet Margins</div>
+                        <div class="rule-description">Adds 40px left margin to emoji bullets (keeps emoji and text)</div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-name">Paragraph Spacing</div>
+                        <div class="rule-description">Adds empty paragraph between each paragraph for proper spacing</div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-name">Preserve Links</div>
+                        <div class="rule-description">Maintains hyperlinks while cleaning surrounding markup</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class HubSpotFormatter {
+            constructor() {
+                this.pasteArea = document.getElementById('pasteArea');
+                this.outputArea = document.getElementById('outputArea');
+                this.copyBtn = document.getElementById('copyBtn');
+                this.cleanedHTML = '';
+                
+                this.init();
+            }
+
+            init() {
+                // Handle paste events
+                this.pasteArea.addEventListener('paste', (e) => {
+                    setTimeout(() => this.processContent(), 100);
+                });
+
+                // Handle input changes
+                this.pasteArea.addEventListener('input', () => {
+                    this.processContent();
+                });
+
+                // Handle copy button
+                this.copyBtn.addEventListener('click', () => {
+                    this.copyToClipboard();
+                });
+
+                // Add placeholder behavior
+                this.pasteArea.addEventListener('focus', () => {
+                    if (this.pasteArea.innerHTML.trim() === '') {
+                        this.pasteArea.innerHTML = '';
+                    }
+                });
+
+                this.pasteArea.addEventListener('blur', () => {
+                    if (this.pasteArea.innerHTML.trim() === '') {
+                        this.pasteArea.setAttribute('data-placeholder', 'Paste your Google Docs content here...');
+                    }
+                });
+            }
+
+            processContent() {
+                const content = this.pasteArea.innerHTML;
+                
+                if (!content.trim()) {
+                    this.outputArea.innerHTML = '<div class="placeholder-text">Cleaned content will appear here...</div>';
+                    this.cleanedHTML = '';
+                    return;
+                }
+
+                const cleaned = this.cleanHTML(content);
+                this.cleanedHTML = cleaned;
+                
+                // Show the cleaned HTML as formatted text for preview
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = cleaned;
+                this.outputArea.innerHTML = tempDiv.innerHTML || cleaned;
+            }
+
+            cleanHTML(html) {
+                // Create a temporary div to work with
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+
+                // Rule 1: Remove all span tags but keep content
+                this.removeSpanTags(tempDiv);
+
+                // Rule 2: Clean Google Docs specific attributes and classes
+                this.cleanGoogleDocsAttributes(tempDiv);
+
+                // Rule 3: Remove inline styles that interfere with HubSpot
+                this.cleanInlineStyles(tempDiv);
+
+                // Rule 4: Convert emoji bullets to proper lists
+                this.convertEmojiBullets(tempDiv);
+
+                // Rule 5: Clean up paragraphs and add spacing
+                this.cleanParagraphs(tempDiv);
+
+                // Rule 6: Add line breaks between paragraphs
+                this.addParagraphSpacing(tempDiv);
+
+                // Rule 7: Remove empty elements
+                this.removeEmptyElements(tempDiv);
+
+                // Rule 8: Normalize whitespace
+                this.normalizeWhitespace(tempDiv);
+
+                return tempDiv.innerHTML;
+            }
+
+            removeSpanTags(element) {
+                const spans = element.querySelectorAll('span');
+                spans.forEach(span => {
+                    // Move all child nodes before the span
+                    while (span.firstChild) {
+                        span.parentNode.insertBefore(span.firstChild, span);
+                    }
+                    // Remove the empty span
+                    span.remove();
+                });
+            }
+
+            cleanGoogleDocsAttributes(element) {
+                const allElements = element.querySelectorAll('*');
+                allElements.forEach(el => {
+                    // Remove Google Docs specific classes
+                    const classesToRemove = ['docs-', 'goog-', 'kix-'];
+                    if (el.className) {
+                        el.className = el.className.split(' ')
+                            .filter(cls => !classesToRemove.some(prefix => cls.startsWith(prefix)))
+                            .join(' ');
+                        
+                        if (!el.className) {
+                            el.removeAttribute('class');
+                        }
+                    }
+
+                    // Remove Google Docs specific attributes
+                    const attrsToRemove = ['data-sheets-value', 'data-sheets-userformat', 'id'];
+                    attrsToRemove.forEach(attr => {
+                        if (el.hasAttribute(attr)) {
+                            el.removeAttribute(attr);
+                        }
+                    });
+                });
+            }
+
+            cleanInlineStyles(element) {
+                // Only remove inline styles from anchor tags since HubSpot handles links automatically
+                const anchors = element.querySelectorAll('a');
+                anchors.forEach(anchor => {
+                    anchor.removeAttribute('style');
+                });
+            }
+
+            convertEmojiBullets(element) {
+                // Find paragraphs that start with common emoji bullets
+                const emojiPattern = /^[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}•◦▪▫‣⁃]\s*/u;
+                const paragraphs = element.querySelectorAll('p');
+                
+                paragraphs.forEach(p => {
+                    const text = p.textContent.trim();
+                    
+                    if (emojiPattern.test(text)) {
+                        // Keep emoji and text, just add left margin
+                        p.style.marginLeft = '40px';
+                    }
+                });
+            }
+
+            addParagraphSpacing(element) {
+                const paragraphs = element.querySelectorAll('p');
+                paragraphs.forEach((p, index) => {
+                    // Skip if this is the last paragraph
+                    if (index < paragraphs.length - 1) {
+                        // Create empty paragraph for spacing
+                        const spacingP = document.createElement('p');
+                        // Insert after current paragraph
+                        p.parentNode.insertBefore(spacingP, p.nextSibling);
+                    }
+                });
+            }
+
+            cleanParagraphs(element) {
+                const paragraphs = element.querySelectorAll('p');
+                paragraphs.forEach(p => {
+                    // Remove paragraphs that only contain whitespace or &nbsp;
+                    if (!p.textContent.trim() || p.innerHTML.match(/^(&nbsp;|\s)*$/)) {
+                        p.remove();
+                    }
+                });
+            }
+
+            removeEmptyElements(element) {
+                const allElements = element.querySelectorAll('*');
+                allElements.forEach(el => {
+                    if (!el.textContent.trim() && !el.querySelector('img, br, hr') && el.tagName !== 'BR') {
+                        el.remove();
+                    }
+                });
+            }
+
+            normalizeWhitespace(element) {
+                // Replace multiple spaces with single spaces
+                const textNodes = this.getTextNodes(element);
+                textNodes.forEach(node => {
+                    node.textContent = node.textContent.replace(/\s+/g, ' ');
+                });
+            }
+
+            getTextNodes(element) {
+                const textNodes = [];
+                const walker = document.createTreeWalker(
+                    element,
+                    NodeFilter.SHOW_TEXT,
+                    null,
+                    false
+                );
+                
+                let node;
+                while (node = walker.nextNode()) {
+                    textNodes.push(node);
+                }
+                
+                return textNodes;
+            }
+
+            async copyToClipboard() {
+                if (!this.cleanedHTML) {
+                    return;
+                }
+
+                try {
+                    // Create a temporary div with the cleaned HTML
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = this.cleanedHTML;
+                    
+                    // Select and copy the content
+                    document.body.appendChild(tempDiv);
+                    const range = document.createRange();
+                    range.selectNodeContents(tempDiv);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    
+                    // Copy to clipboard
+                    document.execCommand('copy');
+                    
+                    // Clean up
+                    document.body.removeChild(tempDiv);
+                    selection.removeAllRanges();
+
+                    // Visual feedback
+                    this.copyBtn.textContent = 'Copied!';
+                    this.copyBtn.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        this.copyBtn.textContent = 'Copy Clean HTML';
+                        this.copyBtn.classList.remove('copied');
+                    }, 2000);
+
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                    // Fallback: copy raw HTML to clipboard
+                    navigator.clipboard.writeText(this.cleanedHTML);
+                }
+            }
+        }
+
+        // Initialize the formatter when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new HubSpotFormatter();
+        });
+    </script>
+</body>
+</html>
