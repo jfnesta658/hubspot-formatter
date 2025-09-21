@@ -8,30 +8,50 @@
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>Google Docs to HubSpot Formatter</h1>
-            <p>Clean up Google Docs formatting for HubSpot</p>
+        <header class="page-header">
+            <h1>Email Formatter</h1>
         </header>
-
         <main class="main">
             <div class="editor-grid">
-                <div class="editor-panel">
-                    <div class="panel-header">
-                        <span>Input (Paste from Google Docs)</span>
+                <div class="editor-section">
+                    <div class="section-label">
+                        <div class="service-info">
+                            <img src="https://docs.google.com/favicon.ico" alt="Google Docs" class="label-icon">
+                            <span class="service-name">Docs</span>
+                        </div>
                     </div>
-                    <div
-                        id="input"
-                        class="input-area"
-                        contenteditable="true"
-                        data-placeholder="Paste your Google Docs content here..."></div>
+                    <div class="editor-panel">
+                        <button class="action-icon clear-icon" id="clear-btn" title="Clear content" style="display: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                        <div
+                            id="input"
+                            class="input-area"
+                            contenteditable="true"
+                            data-placeholder="Paste your Google Docs content here..."></div>
+                    </div>
                 </div>
 
-                <div class="editor-panel">
-                    <div class="panel-header">
-                        <span>Cleaned Output</span>
+                <div class="editor-section">
+                    <div class="section-label">
+                        <div class="service-info">
+                            <img src="https://www.google.com/s2/favicons?domain=hubspot.com&sz=32" alt="HubSpot" class="label-icon">
+                            <span class="service-name">HubSpot</span>
+                        </div>
                     </div>
-                    <div id="output" class="output-area clickable-output">
-                        <div class="placeholder">Cleaned content will appear here...<br><span class="click-to-copy">Click anywhere to copy</span></div>
+                    <div class="editor-panel">
+                        <button class="action-icon copy-icon" id="copy-btn" title="Click to copy" style="display: none;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                        <div id="output" class="output-area clickable-output">
+                            <div class="placeholder">Cleaned content will appear here...</div>
+                        </div>
                     </div>
                 </div>
             </div>

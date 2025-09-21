@@ -2,6 +2,8 @@ class HubSpotFormatter {
     constructor() {
         this.input = document.getElementById('input');
         this.output = document.getElementById('output');
+        this.clearBtn = document.getElementById('clear-btn');
+        this.copyBtn = document.getElementById('copy-btn');
         this.cleanedHTML = '';
 
         this.init();
@@ -14,19 +16,40 @@ class HubSpotFormatter {
         });
         this.input.addEventListener('focus', () => this.selectAllContent());
         this.output.addEventListener('click', () => this.copyToClipboard());
+
+        // Add click handlers for action icons
+        this.clearBtn.addEventListener('click', () => this.clearInput());
+        this.copyBtn.addEventListener('click', () => this.copyToClipboard());
     }
 
     processContent() {
         const content = this.input.innerHTML.trim();
 
         if (!content) {
-            this.output.innerHTML = '<div class="placeholder">Cleaned content will appear here...<br><span class="click-to-copy">Click anywhere to copy</span></div>';
+            this.output.innerHTML = '<div class="placeholder">Cleaned content will appear here...</div>';
             this.cleanedHTML = '';
+            this.updateIconVisibility();
             return;
         }
 
         this.cleanedHTML = this.cleanHTML(content);
         this.output.innerHTML = this.cleanedHTML;
+        this.updateIconVisibility();
+    }
+
+    updateIconVisibility() {
+        // Show clear icon if input has content
+        const hasInputContent = this.input.innerHTML.trim() && this.input.textContent.trim();
+        this.clearBtn.style.display = hasInputContent ? 'flex' : 'none';
+
+        // Show copy icon if output has content
+        const hasOutputContent = this.cleanedHTML.trim();
+        this.copyBtn.style.display = hasOutputContent ? 'flex' : 'none';
+    }
+
+    clearInput() {
+        this.input.innerHTML = '';
+        this.processContent(); // This will also update icon visibility
     }
 
     cleanHTML(html) {
